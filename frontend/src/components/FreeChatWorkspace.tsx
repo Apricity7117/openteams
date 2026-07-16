@@ -58,6 +58,7 @@ import {
   readChatInputPrefill,
   type ChatInputPrefillDetail,
 } from "@/lib/chatInputPrefill";
+import { isImeComposingKeyDown } from "@/lib/keyboard";
 import {
   ISSUE_NAVIGATION_EVENT,
   type IssueNavigationTarget,
@@ -2089,6 +2090,11 @@ export const FreeChatWorkspace: React.FC<FreeChatWorkspaceProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (isImeComposingKeyDown(e.nativeEvent)) {
+      e.stopPropagation();
+      return;
+    }
+
     // Let the shortcut provider consume Shift+Tab for plan mode while keeping
     // plain Tab from moving focus out of the composer.
     if (e.key === "Tab" && e.shiftKey) return;

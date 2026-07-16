@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { AlertTriangle, Plus, RefreshCw } from 'lucide-react';
 import { projectWorkItemsApi } from '@/lib/api';
 import { notifyBuildStatsUsageUpdated } from '@/lib/buildStatsEvents';
+import { isImeComposingEnterKeyDown } from '@/lib/keyboard';
 import type {
   GitHubErrorData,
   ProjectWorkItem,
@@ -125,7 +126,16 @@ export function ProjectWorkItemsView({ projectId }: ProjectWorkItemsViewProps) {
               <p className="text-[var(--ink-subtle)]">{shownError.message}</p>
             </div>
           )}
-          <form onSubmit={(event) => void createItem(event)} className="space-y-2">
+          <form
+            onKeyDown={(event) => {
+              if (isImeComposingEnterKeyDown(event.nativeEvent)) {
+                event.preventDefault();
+                event.stopPropagation();
+              }
+            }}
+            onSubmit={(event) => void createItem(event)}
+            className="space-y-2"
+          >
             <input
               value={title}
               onChange={(event) => setTitle(event.target.value)}

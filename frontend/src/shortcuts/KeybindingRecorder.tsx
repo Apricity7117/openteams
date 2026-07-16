@@ -5,6 +5,7 @@ import {
 } from './bindingResolver';
 import { useShortcutCapture } from './ShortcutProvider';
 import type { ShortcutSequence, ShortcutTranslate } from './types';
+import { isImeComposingKeyDown } from '@/lib/keyboard';
 
 export type KeybindingRecorderProps = {
   active: boolean;
@@ -37,6 +38,8 @@ export function KeybindingRecorder({
   useShortcutCapture({
     active,
     onKeyDown: (event) => {
+      if (isImeComposingKeyDown(event)) return true;
+
       if (event.key === 'Escape') {
         clearTimer();
         firstStrokeRef.current = null;

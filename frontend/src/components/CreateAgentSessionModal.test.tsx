@@ -229,6 +229,7 @@ check(
 check(
   'issue menu supports keyboard option navigation',
   source.includes('activeWorkItemOptionIndex') &&
+    source.includes('isImeComposingKeyDown(event.nativeEvent)') &&
     source.includes("event.key === 'ArrowDown'") &&
     source.includes("event.key === 'ArrowUp'") &&
     source.includes("event.key === 'Enter'") &&
@@ -253,7 +254,8 @@ check(
 );
 check(
   'supports Ctrl/Cmd+Enter submit',
-  source.includes("event.key === 'Enter'") &&
+  source.includes('isImeComposingKeyDown(event.nativeEvent)') &&
+    source.includes("event.key === 'Enter'") &&
     source.includes('event.metaKey || event.ctrlKey'),
   source,
 );

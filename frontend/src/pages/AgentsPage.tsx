@@ -29,6 +29,7 @@ import {
   useShortcutScope,
 } from "@/shortcuts/ShortcutProvider";
 import { agentRuntimeApi } from "@/lib/api";
+import { isImeComposingEnterKeyDown } from "@/lib/keyboard";
 import type {
   AgentRuntimeDiagnostics,
   AgentRuntimeStatus,
@@ -924,6 +925,12 @@ function ModelConfigField({
       {modelFormMode && (
         <form
           className="flex items-center gap-1.5 py-1.5 pl-[140px]"
+          onKeyDown={(event) => {
+            if (isImeComposingEnterKeyDown(event.nativeEvent)) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
+          }}
           onSubmit={(event) => {
             event.preventDefault();
             void handleSaveModel();

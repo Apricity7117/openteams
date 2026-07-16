@@ -32,6 +32,7 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import { DropdownSelect, type DropdownSelectOption } from '@/components/DropdownSelect';
 import { cn } from '@/lib/utils';
+import { isImeComposingKeyDown } from '@/lib/keyboard';
 import {
   agentRuntimeApi,
   chatSessionsApi,
@@ -1290,6 +1291,11 @@ export function OnboardingGuide({
   const handleDirectoryRenameKeyDown = (
     event: ReactKeyboardEvent<HTMLInputElement>,
   ) => {
+    if (isImeComposingKeyDown(event.nativeEvent)) {
+      event.stopPropagation();
+      return;
+    }
+
     if (event.key === 'Enter') {
       event.preventDefault();
       event.stopPropagation();

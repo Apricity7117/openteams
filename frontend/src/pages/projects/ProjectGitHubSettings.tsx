@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AlertTriangle, CheckCircle2, Copy, Github, RefreshCw, Unplug } from 'lucide-react';
 import { githubAuthApi, projectGithubApi } from '@/lib/api';
+import { isImeComposingEnterKeyDown } from '@/lib/keyboard';
 import type {
   GitHubAccount,
   GitHubDeviceFlowStartResponse,
@@ -437,6 +438,12 @@ export function ProjectGitHubSettings({ projectId }: ProjectGitHubSettingsProps)
         </div>
 
         <form
+          onKeyDown={(event) => {
+            if (isImeComposingEnterKeyDown(event.nativeEvent)) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
+          }}
           onSubmit={(event) => void addRepo(event)}
           className="mt-4 grid gap-2 rounded-md border border-[var(--hairline)] bg-[var(--surface-2)] p-3 md:grid-cols-[1.4fr_1fr_1fr_120px_auto]"
         >

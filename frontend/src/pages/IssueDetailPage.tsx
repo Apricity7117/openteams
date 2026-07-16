@@ -50,6 +50,10 @@ import { useWorkspace } from '@/context/WorkspaceContext';
 import { useCommandHandler } from '@/shortcuts/ShortcutProvider';
 import { preventTabFocusChange } from '@/shortcuts/textInputFocus';
 import {
+  isImeComposingEnterKeyDown,
+  isImeComposingKeyDown,
+} from '@/lib/keyboard';
+import {
   chatSessionsApi,
   projectApi,
   projectGithubApi,
@@ -1175,6 +1179,10 @@ export function IssueDetailPage({
     event: ReactKeyboardEvent<HTMLElement>,
   ) => {
     if (!openPropertyMenu) return;
+    if (isImeComposingKeyDown(event.nativeEvent)) {
+      event.stopPropagation();
+      return;
+    }
       if (event.key === 'Escape') {
         setOpenPropertyMenu(null);
         setStatusQuery('');
@@ -1532,6 +1540,11 @@ export function IssueDetailPage({
                   )}
                   onChange={(event) => setTitleDraft(event.target.value)}
                   onKeyDown={(event) => {
+                    if (isImeComposingEnterKeyDown(event.nativeEvent)) {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      return;
+                    }
                     if (preventTabFocusChange(event)) return;
                     if (event.key === 'Escape') {
                       event.preventDefault();

@@ -8,7 +8,7 @@ const source = readFileSync(
 
 assert.ok(source.includes("event.key === 'Enter'"));
 assert.ok(source.includes('!event.repeat'));
-assert.ok(source.includes('!event.isComposing'));
+assert.ok(source.includes('!isImeComposingKeyDown(event)'));
 assert.ok(source.includes('event.preventDefault()'));
 assert.ok(source.includes('event.stopPropagation()'));
 assert.ok(source.includes('onConfirm();'));

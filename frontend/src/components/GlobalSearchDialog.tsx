@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { chatSearchApi } from "@/lib/api";
 import { useAppScale } from "@/context/AppScaleContext";
+import { isImeComposingKeyDown } from "@/lib/keyboard";
 import {
   ChatSearchMode,
   type ChatSearchQuery,
@@ -309,6 +310,11 @@ export function GlobalSearchDialog({
   }, [openResult, selectedResult]);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (isImeComposingKeyDown(event.nativeEvent)) {
+      event.stopPropagation();
+      return;
+    }
+
     if (event.key === "Escape") {
       event.preventDefault();
       onClose();

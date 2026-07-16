@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Check, ChevronDown, Search } from 'lucide-react';
 import { useAppScale } from '@/context/AppScaleContext';
+import { isImeComposingKeyDown } from '@/lib/keyboard';
 
 export interface DropdownSelectOption {
   id: string;
@@ -255,6 +256,11 @@ export function DropdownSelect(props: DropdownSelectProps) {
             value={searchText}
             onChange={(event) => setSearchText(event.target.value)}
             onKeyDown={(event) => {
+              if (isImeComposingKeyDown(event.nativeEvent)) {
+                event.stopPropagation();
+                return;
+              }
+
               if (
                 event.key !== 'Enter' ||
                 !allowCustomValue ||

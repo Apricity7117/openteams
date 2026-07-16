@@ -468,8 +468,9 @@ check(
   "composer mention picker opens on @ and captures keyboard selection",
   source.includes("activeMemberPickerIndex") &&
     source.includes("const handleInputChange = (") &&
-    source.includes('nextValue[cursor - 1] === "@"') &&
+  source.includes('nextValue[cursor - 1] === "@"') &&
     source.includes("setIsMemberPickerOpen(true)") &&
+    source.includes("isImeComposingKeyDown(e.nativeEvent)") &&
     source.includes('e.key === "ArrowDown"') &&
     source.includes('e.key === "ArrowUp"') &&
     source.includes('e.key === "Enter" && !e.shiftKey') &&

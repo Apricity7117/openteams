@@ -1,5 +1,6 @@
 import { AlertTriangle, X } from 'lucide-react';
 import { useEffect, type ReactNode } from 'react';
+import { isImeComposingKeyDown } from '@/lib/keyboard';
 
 export type ConfirmationDialogTone = 'warning' | 'danger';
 
@@ -47,7 +48,7 @@ export function ConfirmationDialog({
       if (
         event.key === 'Enter' &&
         !event.repeat &&
-        !event.isComposing &&
+        !isImeComposingKeyDown(event) &&
         !confirming
       ) {
         event.preventDefault();

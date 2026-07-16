@@ -22,6 +22,7 @@ import {
   type DropdownSelectOption,
 } from '@/components/DropdownSelect';
 import { chatSessionsApi, projectWorkItemsApi } from '@/lib/api';
+import { isImeComposingKeyDown } from '@/lib/keyboard';
 import { cn } from '@/lib/utils';
 import {
   canUseIsolatedWorktree,
@@ -602,6 +603,11 @@ export function CreateAgentSessionModal({
   const handleWorkItemMenuKeyDown = (
     event: React.KeyboardEvent<HTMLInputElement>,
   ) => {
+    if (isImeComposingKeyDown(event.nativeEvent)) {
+      event.stopPropagation();
+      return;
+    }
+
     if (event.key === 'Escape') {
       event.preventDefault();
       setWorkItemMenuOpen(false);
@@ -636,6 +642,11 @@ export function CreateAgentSessionModal({
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (isImeComposingKeyDown(event.nativeEvent)) {
+      event.stopPropagation();
+      return;
+    }
+
     if (event.key === 'Escape') {
       event.preventDefault();
       onClose();

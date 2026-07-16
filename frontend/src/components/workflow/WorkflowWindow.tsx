@@ -26,6 +26,7 @@ import type { WorkflowCardData } from '@/lib/api';
 import type { WorkflowStepTokenEntry } from '@/types';
 import { chatApi } from '@/lib/api';
 import { cn } from '@/lib/utils';
+import { shouldHandleEnterKeyDown } from '@/lib/keyboard';
 import {
   formatCompactNumber,
   formatNumber,
@@ -1763,7 +1764,7 @@ function ChatPanel({
                     })
               }
               onKeyDown={(e) => {
-                if (e.key === 'Enter') {
+                if (shouldHandleEnterKeyDown(e.nativeEvent)) {
                   e.preventDefault();
                   handleSend();
                 }

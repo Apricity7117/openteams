@@ -5,6 +5,7 @@ import type {
   ShortcutScope,
   ShortcutScopeRegistration,
 } from './types';
+import { isImeComposingKeyDown } from '@/lib/keyboard';
 
 type ContextRule = {
   pageDomain: 'any' | 'session' | 'issues' | 'agents';
@@ -161,7 +162,11 @@ export function shouldIgnoreKeyboardEvent(
   binding: EffectiveBinding,
   registration: CommandHandlerRegistration,
 ): boolean {
-  if (event.defaultPrevented || event.isComposing || event.key === 'Process') {
+  if (
+    event.defaultPrevented ||
+    isImeComposingKeyDown(event) ||
+    event.key === 'Process'
+  ) {
     return true;
   }
   if (isEmbeddedEditorFocused(document)) return true;

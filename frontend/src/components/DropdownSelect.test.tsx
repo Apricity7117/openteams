@@ -113,7 +113,8 @@ check(
   'supports opt-in custom single values',
   source.includes('allowCustomValue') &&
     source.includes('handleCustomValue') &&
-    source.includes("event.key !== 'Enter'"),
+    source.includes("event.key !== 'Enter'") &&
+    source.includes('isImeComposingKeyDown(event.nativeEvent)'),
   source,
 );
 

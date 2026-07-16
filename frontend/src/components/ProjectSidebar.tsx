@@ -55,6 +55,10 @@ import { DropdownSelect, type DropdownSelectOption } from "./DropdownSelect";
 import { InboxNotificationsPopover } from "./InboxNotificationsPopover";
 import { useAppScale } from "@/context/AppScaleContext";
 import { chatSessionsApi, filesystemApi } from "@/lib/api";
+import {
+  isImeComposingEnterKeyDown,
+  isImeComposingKeyDown,
+} from "@/lib/keyboard";
 import { buildStatsApi } from "@/lib/buildStatsApi";
 import { onBuildStatsUpdated } from "@/lib/buildStatsEvents";
 import { useCommandHandler } from "@/shortcuts/ShortcutProvider";
@@ -1020,6 +1024,11 @@ export function ProjectSidebar({
   const handleWorkspaceRenameKeyDown = (
     event: React.KeyboardEvent<HTMLInputElement>,
   ) => {
+    if (isImeComposingKeyDown(event.nativeEvent)) {
+      event.stopPropagation();
+      return;
+    }
+
     if (event.key === "Enter") {
       event.preventDefault();
       event.stopPropagation();
@@ -1970,7 +1979,16 @@ export function ProjectSidebar({
                   <X className="h-4 w-4" />
                 </button>
               </header>
-              <form className="space-y-4 p-6" onSubmit={handleCreateProject}>
+              <form
+                className="space-y-4 p-6"
+                onKeyDown={(event) => {
+                  if (isImeComposingEnterKeyDown(event.nativeEvent)) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                  }
+                }}
+                onSubmit={handleCreateProject}
+              >
                 <div>
                   <label className={createProjectLabelClass}>
                     {translate("sidebar.projectName", "Project name")}
@@ -2591,7 +2609,16 @@ export function ProjectSidebar({
                   <X className="h-4 w-4" />
                 </button>
               </header>
-              <form className="space-y-4 p-5" onSubmit={handleRenameSession}>
+              <form
+                className="space-y-4 p-5"
+                onKeyDown={(event) => {
+                  if (isImeComposingEnterKeyDown(event.nativeEvent)) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                  }
+                }}
+                onSubmit={handleRenameSession}
+              >
                 <div>
                   <label className="mb-1.5 block text-[13px] font-medium tracking-[0.4px] text-[var(--ink-tertiary)]">
                     {translate("sidebar.sessionTitle", "Session title")}

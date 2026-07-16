@@ -44,6 +44,7 @@ import {
   ONBOARDING_UPGRADE_REPLAY_EVENT,
 } from '@/lib/onboardingEvents';
 import { mockFrontendApi } from '@/lib/mockFrontendApi';
+import { shouldHandleEnterKeyDown } from '@/lib/keyboard';
 import { cn } from '@/lib/utils';
 import type { SettingsOptionsMock } from '@/mockApiData';
 import type { GitHubAccount, Session, UserSystemInfo } from '@/types';
@@ -910,7 +911,7 @@ export const SettingsWorkspace: React.FC = () => {
                         void persistWorktreeSessionsDir(worktreeSessionsDirDraft)
                       }
                       onKeyDown={(event) => {
-                        if (event.key === 'Enter') {
+                        if (shouldHandleEnterKeyDown(event.nativeEvent)) {
                           event.currentTarget.blur();
                         }
                       }}

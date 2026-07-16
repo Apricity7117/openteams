@@ -101,6 +101,11 @@ const composingEvent = eventFrom(document.body, {
   code: 'KeyK',
   isComposing: true,
 });
+const legacyComposingEvent = eventFrom(document.body, {
+  key: 'Enter',
+  code: 'Enter',
+});
+Object.defineProperty(legacyComposingEvent, 'keyCode', { value: 229 });
 
 assert.equal(
   shouldIgnoreKeyboardEvent(eventFrom(input), chordBinding, globalHandler),
@@ -132,6 +137,10 @@ assert.equal(
 );
 assert.equal(
   shouldIgnoreKeyboardEvent(composingEvent, searchBinding, globalHandler),
+  true,
+);
+assert.equal(
+  shouldIgnoreKeyboardEvent(legacyComposingEvent, searchBinding, globalHandler),
   true,
 );
 document.body.insertAdjacentHTML(

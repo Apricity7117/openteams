@@ -222,10 +222,17 @@ const setInputValue = async (value: string): Promise<void> => {
   });
 };
 
-const pressKey = async (key: string): Promise<void> => {
+const pressKey = async (
+  key: string,
+  init: KeyboardEventInit = {},
+): Promise<void> => {
   await act(async () => {
     getInput().dispatchEvent(
-      new dom.window.KeyboardEvent("keydown", { key, bubbles: true }),
+      new dom.window.KeyboardEvent("keydown", {
+        key,
+        bubbles: true,
+        ...init,
+      }),
     );
   });
 };
@@ -333,6 +340,13 @@ const main = async () => {
   check(
     "鼠标 hover 不抢占键盘选中项",
     getOptions()[2]?.getAttribute("aria-selected") === "true",
+  );
+
+  await pressKey("Enter", { isComposing: true });
+  check(
+    "输入法候选确认 Enter 不打开搜索结果",
+    openedResults.length === 0 && closeCount === 0,
+    openedResults,
   );
 
   await pressKey("Enter");

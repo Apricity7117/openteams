@@ -24,6 +24,10 @@ import {
 } from 'react';
 import { ProjectBreadcrumbAvatar } from '@/components/ProjectBreadcrumbAvatar';
 import {
+  isImeComposingEnterKeyDown,
+  shouldHandleEnterKeyDown,
+} from '@/lib/keyboard';
+import {
   COMMON_GITHUB_LABELS,
   labelColor,
   labelDisplayName,
@@ -341,10 +345,15 @@ export function IssueCreateDialog({
   };
 
   const handleFormKeyDown = (event: ReactKeyboardEvent<HTMLFormElement>) => {
+    if (isImeComposingEnterKeyDown(event.nativeEvent)) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+
     if (
       event.key !== 'Enter' ||
       !event.ctrlKey ||
-      event.nativeEvent.isComposing ||
       submitting ||
       !title.trim()
     ) {
@@ -943,7 +952,7 @@ function PropertySearchRow({
         onKeyDown={
           onEnter
             ? (event) => {
-                if (event.key === 'Enter') {
+                if (shouldHandleEnterKeyDown(event.nativeEvent)) {
                   event.preventDefault();
                   onEnter();
                 }
