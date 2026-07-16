@@ -98,6 +98,7 @@ type MemberForm = {
   description: string;
   runnerType: string;
   recommendedModel: string;
+  thinkingEffort: string;
   systemPrompt: string;
   selectedSkillIdsText: string;
   toolsEnabledText: string;
@@ -131,6 +132,8 @@ type FormValidationIssue = {
 const emptyToolsEnabledText = "{}";
 const defaultRunnerOptionId = "__default_runner";
 const defaultModelOptionId = "__default_model";
+const defaultReasoningOptionId = "__default_reasoning";
+const codexReasoningSuggestions = ["low", "medium", "high", "xhigh", "max"];
 
 const jsonValueToText = (value: JsonValue | null | undefined): string => {
   if (value === null || value === undefined) return emptyToolsEnabledText;
@@ -159,6 +162,7 @@ const blankMember = (index: number, t?: TranslateFn): MemberForm => ({
   description: "",
   runnerType: "",
   recommendedModel: "",
+  thinkingEffort: "",
   systemPrompt: "",
   selectedSkillIdsText: "",
   toolsEnabledText: emptyToolsEnabledText,
@@ -194,6 +198,7 @@ const detailToForm = (detail: ChatTeamPreset): TeamPresetForm => ({
     description: member.description || "",
     runnerType: member.runner_type ?? "",
     recommendedModel: member.recommended_model ?? "",
+    thinkingEffort: member.thinking_effort ?? "",
     systemPrompt: member.system_prompt || "",
     selectedSkillIdsText: member.selected_skill_ids.join(", "),
     toolsEnabledText: jsonValueToText(member.tools_enabled),
@@ -239,6 +244,7 @@ const formToPayload = (
     description: member.description.trim() || null,
     runner_type: member.runnerType.trim() || null,
     recommended_model: member.recommendedModel.trim() || null,
+    thinking_effort: member.thinkingEffort.trim() || null,
     system_prompt: member.systemPrompt.trim() || null,
     default_workspace_path: null,
     selected_skill_ids: parseSkillIds(member.selectedSkillIdsText),
@@ -941,6 +947,7 @@ const memberFormToPreset = (member: MemberForm): ChatMemberPreset => {
     description: member.description,
     runner_type: member.runnerType.trim() || null,
     recommended_model: member.recommendedModel.trim() || null,
+    thinking_effort: member.thinkingEffort.trim() || null,
     system_prompt: member.systemPrompt,
     default_workspace_path: null,
     selected_skill_ids: parseSkillIds(member.selectedSkillIdsText),
@@ -980,6 +987,7 @@ const formDirtySnapshot = (form: TeamPresetForm): string =>
       description: member.description,
       runnerType: member.runnerType,
       recommendedModel: member.recommendedModel,
+      thinkingEffort: member.thinkingEffort,
       systemPrompt: member.systemPrompt,
       selectedSkillIdsText: member.selectedSkillIdsText,
       toolsEnabledText: member.toolsEnabledText,
@@ -1129,6 +1137,7 @@ function TemplateMemberInfoPage({
   );
   const currentRunnerType = formMember?.runnerType.trim() ?? "";
   const currentModel = formMember?.recommendedModel.trim() ?? "";
+  const currentThinkingEffort = formMember?.thinkingEffort.trim() ?? "";
   const availableRuntimes = useMemo(
     () =>
       runtimes.filter(
@@ -1177,6 +1186,7 @@ function TemplateMemberInfoPage({
   );
   const effectiveRunnerType =
     currentRunnerType || runtimeForModels?.runner_type || "";
+  const isCodexRuntime = currentRunnerType.toUpperCase() === "CODEX";
   const [runtimeSkills, setRuntimeSkills] = useState<BackendChatSkill[]>([]);
   const [runtimeSkillsLoading, setRuntimeSkillsLoading] = useState(false);
   const [runtimeSkillsError, setRuntimeSkillsError] = useState<string | null>(
@@ -1256,6 +1266,35 @@ function TemplateMemberInfoPage({
 
     return options;
   }, [currentModel, runtimeForModels, t]);
+  const reasoningOptions = useMemo<DropdownSelectOption[]>(() => {
+    const options: DropdownSelectOption[] = [
+      {
+        id: defaultReasoningOptionId,
+        label: translateWithFallback(t, "teamTemplates.member.defaultReasoning", "Default reasoning"),
+        description: translateWithFallback(t, "teamTemplates.member.followRuntimeReasoning", "Follow Codex runtime configuration"),
+      },
+      ...codexReasoningSuggestions.map((effort) => ({
+        id: effort,
+        label: effort,
+        description: translateWithFallback(t, "teamTemplates.member.reasoningEffort", "Reasoning effort"),
+        group: translateWithFallback(t, "teamTemplates.member.suggestedValues", "Suggested values"),
+      })),
+    ];
+
+    if (
+      currentThinkingEffort &&
+      !options.some((option) => option.id === currentThinkingEffort)
+    ) {
+      options.push({
+        id: currentThinkingEffort,
+        label: currentThinkingEffort,
+        description: translateWithFallback(t, "teamTemplates.member.currentCustomValue", "Current custom value"),
+        group: translateWithFallback(t, "teamTemplates.member.currentConfig", "Current configuration"),
+      });
+    }
+
+    return options;
+  }, [currentThinkingEffort, t]);
   const skillOptions = useMemo<DropdownSelectOption[]>(() => {
     const options: DropdownSelectOption[] = runtimeSkills.map((skill) => ({
       id: skill.id,
@@ -1356,6 +1395,7 @@ function TemplateMemberInfoPage({
                       runnerType:
                         value === defaultRunnerOptionId ? "" : value,
                       recommendedModel: "",
+                      thinkingEffort: "",
                     })
                   }
                 />
@@ -1368,9 +1408,15 @@ function TemplateMemberInfoPage({
                   value={currentModel || defaultModelOptionId}
                   options={modelOptions}
                   placeholder={translateWithFallback(t, "teamTemplates.member.selectModel", "Select model")}
-                  searchPlaceholder={translateWithFallback(t, "teamTemplates.member.searchModels", "Search models...")}
+                  searchPlaceholder={
+                    isCodexRuntime
+                      ? translateWithFallback(t, "teamTemplates.member.searchOrEnterModels", "Search or enter a model ID...")
+                      : translateWithFallback(t, "teamTemplates.member.searchModels", "Search models...")
+                  }
                   emptyLabel={translateWithFallback(t, "teamTemplates.member.noAvailableModels", "No models available")}
                   disabled={disabled || modelOptions.length === 0}
+                  allowCustomValue={isCodexRuntime}
+                  customValueLabel={translateWithFallback(t, "teamTemplates.member.useInputValue", "Use input value")}
                   className="w-full [&>button]:h-7 [&>button]:rounded-[3px] [&>button]:border-transparent [&>button]:bg-transparent [&>button]:px-1 [&>button]:py-0 [&>button]:text-[13px] [&>button]:shadow-none [&>button:hover]:bg-white/[0.035]"
                   maxPanelHeightClassName="max-h-[180px]"
                   onChange={(value) =>
@@ -1381,6 +1427,31 @@ function TemplateMemberInfoPage({
                   }
                 />
               </div>
+              {isCodexRuntime && (
+                <div className="team-template-compact-field grid grid-cols-[72px_minmax(0,1fr)] items-start gap-2 border-b border-[var(--team-template-border)] py-1.5 last:border-b-0">
+                  <span className="pt-1 font-mono text-[10px] font-semibold uppercase tracking-[0.04em] text-[var(--team-template-aux)]">
+                    {translateWithFallback(t, "teamTemplates.member.reasoning", "Reasoning")}
+                  </span>
+                  <DropdownSelect
+                    value={currentThinkingEffort || defaultReasoningOptionId}
+                    options={reasoningOptions}
+                    placeholder={translateWithFallback(t, "teamTemplates.member.defaultReasoning", "Default reasoning")}
+                    searchPlaceholder={translateWithFallback(t, "teamTemplates.member.enterReasoning", "Enter an English value, e.g. max or high...")}
+                    emptyLabel={translateWithFallback(t, "teamTemplates.member.noReasoningValues", "No reasoning values")}
+                    disabled={disabled}
+                    allowCustomValue
+                    customValueLabel={translateWithFallback(t, "teamTemplates.member.useInputValue", "Use input value")}
+                    className="w-full [&>button]:h-7 [&>button]:rounded-[3px] [&>button]:border-transparent [&>button]:bg-transparent [&>button]:px-1 [&>button]:py-0 [&>button]:text-[13px] [&>button]:shadow-none [&>button:hover]:bg-white/[0.035]"
+                    maxPanelHeightClassName="max-h-[180px]"
+                    onChange={(value) =>
+                      onMemberChange?.({
+                        thinkingEffort:
+                          value === defaultReasoningOptionId ? "" : value,
+                      })
+                    }
+                  />
+                </div>
+              )}
             </div>
           </MemberInfoSection>
 
@@ -1508,6 +1579,12 @@ function TemplateMemberInfoPage({
               label="Model"
               value={formatMemberValue(member.recommended_model, translateWithFallback(t, "teamTemplates.member.defaultModel", "Default model"))}
             />
+            {member.thinking_effort && (
+              <MemberInfoField
+                label="Reasoning"
+                value={member.thinking_effort}
+              />
+            )}
           </div>
         </MemberInfoSection>
 
@@ -3021,7 +3098,7 @@ export function TeamTemplatesPage() {
       execution_config: {
         runner_type: spec.runnerType as unknown as ProjectBaseCodingAgent,
         model_name: spec.modelName,
-        thinking_effort: null,
+        thinking_effort: spec.thinkingEffort,
         model_variant: null,
       },
       is_default: true,

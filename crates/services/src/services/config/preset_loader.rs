@@ -971,6 +971,7 @@ impl PresetLoader {
             description: preset.description,
             runner_type: preset.runner_type,
             recommended_model: preset.recommended_model,
+            thinking_effort: None,
             system_prompt: preset.role_definition,
             default_workspace_path: Some(default_workspace_path.to_string()),
             selected_skill_ids: preset.selected_skill_ids,

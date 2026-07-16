@@ -712,6 +712,7 @@ function WorkspaceLayout() {
     systemPrompt,
     toolsEnabled,
     modelName,
+    thinkingEffort,
     allowedSkillIds,
     role,
     displayOrder,
@@ -723,6 +724,7 @@ function WorkspaceLayout() {
     systemPrompt: string | null;
     toolsEnabled: JsonValue;
     modelName: string | null;
+    thinkingEffort: string | null;
     allowedSkillIds: string[];
     role: string;
     displayOrder: number;
@@ -748,7 +750,7 @@ function WorkspaceLayout() {
       execution_config: {
         runner_type: runnerType as unknown as ProjectBaseCodingAgent,
         model_name: modelName,
-        thinking_effort: null,
+        thinking_effort: thinkingEffort,
         model_variant: null,
       },
       is_default: true,

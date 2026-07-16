@@ -32,6 +32,7 @@ const member = (patch: Partial<ChatMemberPreset>): ChatMemberPreset => ({
   description: patch.description ?? 'Coordinates delivery.',
   runner_type: patch.runner_type ?? 'codex',
   recommended_model: patch.recommended_model ?? 'gpt-5',
+  thinking_effort: patch.thinking_effort ?? 'high',
   system_prompt: patch.system_prompt ?? 'Lead the work.',
   default_workspace_path: patch.default_workspace_path ?? null,
   selected_skill_ids: patch.selected_skill_ids ?? [],
@@ -64,6 +65,7 @@ const availableSpec = resolveTemplateMemberRuntime(
 );
 assert.equal(availableSpec?.runnerType, 'codex');
 assert.equal(availableSpec?.modelName, 'gpt-5');
+assert.equal(availableSpec?.thinkingEffort, 'high');
 
 const fallbackSpec = resolveTemplateMemberRuntime(
   member({ runner_type: 'gemini', recommended_model: 'gemini-2.5-pro' }),
@@ -71,6 +73,7 @@ const fallbackSpec = resolveTemplateMemberRuntime(
 );
 assert.equal(fallbackSpec?.runnerType, 'claude_code');
 assert.equal(fallbackSpec?.modelName, 'claude-sonnet-4-20250514');
+assert.equal(fallbackSpec?.thinkingEffort, null);
 
 const specs = buildTemplateMemberSpecs(
   team([
@@ -83,3 +86,4 @@ const specs = buildTemplateMemberSpecs(
 assert.equal(specs.length, 1);
 assert.equal(specs[0]?.role, 'lead');
 assert.equal(specs[0]?.workspacePath, 'E:\\workspace');
+assert.equal(specs[0]?.thinkingEffort, 'high');

@@ -10,6 +10,7 @@ export type TemplateMemberBuild = {
   role: string;
   runnerType: string;
   systemPrompt: string | null;
+  thinkingEffort: string | null;
   toolsEnabled: JsonValue;
   workspacePath: string | null;
 };
@@ -33,7 +34,11 @@ export const firstAvailableRuntime = (
 export const resolveTemplateMemberRuntime = (
   member: ChatMemberPreset,
   runtimes: AgentRuntimeStatus[],
-): { runnerType: string; modelName: string | null } | null => {
+): {
+  runnerType: string;
+  modelName: string | null;
+  thinkingEffort: string | null;
+} | null => {
   const availableRuntimes = runtimes.filter(
     (runner) => getRuntimeDisplayState(runner) === 'available',
   );
@@ -52,6 +57,10 @@ export const resolveTemplateMemberRuntime = (
   return {
     runnerType: runtime.runner_type,
     modelName,
+    thinkingEffort:
+      availableRecommended && member.thinking_effort?.trim()
+        ? member.thinking_effort.trim()
+        : null,
   };
 };
 
@@ -82,6 +91,7 @@ export const buildTemplateMemberSpecs = (
         role: member.id === leadMemberId ? 'lead' : 'agent',
         runnerType: runtime.runnerType,
         systemPrompt: member.system_prompt,
+        thinkingEffort: runtime.thinkingEffort,
         toolsEnabled: (member.tools_enabled ?? {}) as JsonValue,
         workspacePath: member.default_workspace_path?.trim() || workspacePath,
       },

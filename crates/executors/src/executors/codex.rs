@@ -161,6 +161,10 @@ pub struct Codex {
     pub model: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub model_reasoning_effort: Option<ReasoningEffort>,
+    #[serde(skip)]
+    #[ts(skip)]
+    #[schemars(skip)]
+    pub(crate) runtime_model_reasoning_effort: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub model_reasoning_summary: Option<ReasoningSummary>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -372,13 +376,27 @@ impl StandardCodingAgentExecutor for Codex {
 
 #[cfg(test)]
 mod tests {
-    use super::CODEX_MODEL_FALLBACKS;
+    use super::{CODEX_MODEL_FALLBACKS, Codex};
 
     #[test]
     fn codex_model_fallbacks_include_latest_gpt_5_6_models() {
         assert!(CODEX_MODEL_FALLBACKS.contains(&"gpt-5.6-sol"));
         assert!(CODEX_MODEL_FALLBACKS.contains(&"gpt-5.6-terra"));
         assert!(CODEX_MODEL_FALLBACKS.contains(&"gpt-5.6-luna"));
+    }
+
+    #[test]
+    fn runtime_reasoning_effort_is_forwarded_without_validation() {
+        let codex = Codex {
+            runtime_model_reasoning_effort: Some("future-level".to_string()),
+            ..serde_json::from_value(serde_json::json!({})).expect("codex config")
+        };
+
+        let overrides = codex.build_config_overrides().expect("config overrides");
+        assert_eq!(
+            overrides.get("model_reasoning_effort"),
+            Some(&serde_json::Value::String("future-level".to_string()))
+        );
     }
 }
 
@@ -441,7 +459,12 @@ impl Codex {
     fn build_config_overrides(&self) -> Option<HashMap<String, Value>> {
         let mut overrides = HashMap::new();
 
-        if let Some(effort) = &self.model_reasoning_effort {
+        if let Some(effort) = self.runtime_model_reasoning_effort.as_deref() {
+            overrides.insert(
+                "model_reasoning_effort".to_string(),
+                Value::String(effort.to_string()),
+            );
+        } else if let Some(effort) = &self.model_reasoning_effort {
             overrides.insert(
                 "model_reasoning_effort".to_string(),
                 Value::String(effort.as_ref().to_string()),

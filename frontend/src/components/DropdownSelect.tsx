@@ -34,6 +34,8 @@ interface DropdownSelectSingleProps extends DropdownSelectBaseProps {
   selectionMode?: 'single';
   value: string;
   onChange: (value: string, option: DropdownSelectOption) => void;
+  allowCustomValue?: boolean;
+  customValueLabel?: string;
 }
 
 interface DropdownSelectMultiProps extends DropdownSelectBaseProps {
@@ -93,6 +95,12 @@ export function DropdownSelect(props: DropdownSelectProps) {
     width: 280,
   });
   const isMultiple = props.selectionMode === 'multiple';
+  const allowCustomValue =
+    props.selectionMode !== 'multiple' && props.allowCustomValue === true;
+  const customValueLabel =
+    props.selectionMode !== 'multiple'
+      ? props.customValueLabel ?? 'Use input value'
+      : '';
   const portalTarget =
     appScale.portalRoot ??
     (typeof document === 'undefined' ? null : document.body);
@@ -191,6 +199,12 @@ export function DropdownSelect(props: DropdownSelectProps) {
     return groups;
   }, [filteredOptions]);
 
+  const customValue = searchText.trim();
+  const canUseCustomValue =
+    allowCustomValue &&
+    customValue.length > 0 &&
+    !options.some((option) => option.id === customValue);
+
   const handleOptionClick = (option: DropdownSelectOption) => {
     if (option.disabled) return;
 
@@ -203,6 +217,26 @@ export function DropdownSelect(props: DropdownSelectProps) {
     }
 
     props.onChange(option.id, option);
+    setOpen(false);
+  };
+
+  const handleCustomValue = () => {
+    if (
+      props.selectionMode === 'multiple' ||
+      !allowCustomValue ||
+      customValue.length === 0
+    ) {
+      return;
+    }
+    const existingOption = options.find((option) => option.id === customValue);
+    if (existingOption) {
+      handleOptionClick(existingOption);
+      setSearchText('');
+      return;
+    }
+    const option = { id: customValue, label: customValue };
+    props.onChange(customValue, option);
+    setSearchText('');
     setOpen(false);
   };
 
@@ -220,6 +254,18 @@ export function DropdownSelect(props: DropdownSelectProps) {
             placeholder={searchPlaceholder}
             value={searchText}
             onChange={(event) => setSearchText(event.target.value)}
+            onKeyDown={(event) => {
+              if (
+                event.key !== 'Enter' ||
+                !allowCustomValue ||
+                customValue.length === 0
+              ) {
+                return;
+              }
+              event.preventDefault();
+              event.stopPropagation();
+              handleCustomValue();
+            }}
           />
         </div>
       )}
@@ -229,7 +275,25 @@ export function DropdownSelect(props: DropdownSelectProps) {
         aria-multiselectable={isMultiple || undefined}
         className={`overflow-y-auto py-1 divide-y divide-[var(--hairline)] ${maxPanelHeightClassName}`}
       >
-        {groupedOptions.length === 0 ? (
+        {canUseCustomValue && (
+          <button
+            type="button"
+            role="option"
+            aria-selected="false"
+            onClick={handleCustomValue}
+            className={optionClass}
+          >
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-[14px] font-medium leading-tight">
+                {customValueLabel}
+              </span>
+              <span className="mt-0.5 block truncate font-mono text-[13px] leading-none text-[var(--ink-tertiary)]">
+                {customValue}
+              </span>
+            </span>
+          </button>
+        )}
+        {groupedOptions.length === 0 && !canUseCustomValue ? (
           <div className="px-3 py-2 text-[14px] text-[var(--ink-tertiary)]">
             {emptyLabel}
           </div>

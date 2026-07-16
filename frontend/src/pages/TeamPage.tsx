@@ -94,6 +94,7 @@ const createModelOptions = (
 const createReasoningOptions = (
   t: TranslateFn,
   capability?: AgentRuntimeReasoningCapability | null,
+  currentValue = "",
 ): DropdownSelectOption[] => [
   {
     id: defaultOptionId,
@@ -108,6 +109,15 @@ const createReasoningOptions = (
         ? t("teamPage.options.runtimeVariant")
         : t("teamPage.options.reasoningEffort"),
   })),
+  ...(currentValue && !(capability?.options ?? []).includes(currentValue)
+    ? [
+        {
+          id: currentValue,
+          label: currentValue,
+          description: t("teamPage.options.currentCustomValue"),
+        },
+      ]
+    : []),
 ];
 
 function TeamHeader({
@@ -479,14 +489,14 @@ export function TeamPage() {
     return createModelOptions(models, t);
   }, [modelName, selectedRuntime, t]);
   const capability = selectedMember?.reasoning_capability ?? null;
+  const currentReasoningValue =
+    capability?.kind === "variant" ? modelVariant : thinkingEffort;
   const reasoningOptions = useMemo(
-    () => createReasoningOptions(t, capability),
-    [capability, t],
+    () => createReasoningOptions(t, capability, currentReasoningValue),
+    [capability, currentReasoningValue, t],
   );
   const selectedModelValue = modelName || defaultOptionId;
-  const selectedReasoningValue =
-    (capability?.kind === "variant" ? modelVariant : thinkingEffort) ||
-    defaultOptionId;
+  const selectedReasoningValue = currentReasoningValue || defaultOptionId;
   latestMemberDraftRef.current = {
     allowedSkillIds,
     isLeader,

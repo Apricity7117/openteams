@@ -132,6 +132,9 @@ const fixedMcpDraft = {
           ...member,
           toolsEnabledText: '{"mcpServers":{"filesystem":true}}',
           selectedSkillIdsText: 'review, planning',
+          runnerType: 'CODEX',
+          recommendedModel: 'custom-model',
+          thinkingEffort: 'future-level',
         }
       : member,
   ),
@@ -143,7 +146,9 @@ check(
     payload.workflow_steps[0]?.title === 'Plan' &&
     Boolean(payload.members[1]?.tools_enabled) &&
     typeof payload.members[1].tools_enabled === 'object' &&
-    !Array.isArray(payload.members[1].tools_enabled),
+    !Array.isArray(payload.members[1].tools_enabled) &&
+    payload.members[1]?.recommended_model === 'custom-model' &&
+    payload.members[1]?.thinking_effort === 'future-level',
   payload,
 );
 
@@ -229,6 +234,7 @@ const uiLead = {
   description: 'Leads the localized team.',
   runner_type: 'CODEX',
   recommended_model: 'test-model',
+  thinking_effort: 'future-level',
   system_prompt: 'Lead the team.',
   default_workspace_path: null,
   selected_skill_ids: [],
@@ -488,6 +494,7 @@ check(
   source,
 );
 check('uses shared DropdownSelect for member runtime and model picking', source.includes('DropdownSelect') && source.includes('runtimeOptions') && source.includes('modelOptions') && source.includes('setRuntimes(response.runners)'));
+check('allows custom Codex model and reasoning values', source.includes('allowCustomValue={isCodexRuntime}') && source.includes('thinkingEffort') && source.includes('enterReasoning'));
 check('uses shared DropdownSelect for runtime-specific skill picking', source.includes('selectionMode="multiple"') && source.includes('listNative(effectiveRunnerType)') && source.includes('runtimeSkills') && source.includes('skillPlaceholder') && !source.includes('技能 ID（逗号分隔）'));
 check('keeps Linear visual refinement hooks', source.includes('team-template-card') && source.includes('team-template-member-row') && source.includes('team-template-field'));
 check('uses the brand theme for create and use-template actions', source.includes('brandPrimaryButtonClassName') && source.includes('bg-[var(--primary)]') && source.includes('hover:bg-[var(--primary-hover)]'));

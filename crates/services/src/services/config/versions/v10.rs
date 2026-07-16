@@ -103,6 +103,7 @@ fn complete_chat_presets_with_builtins(chat_presets: &mut ChatPresetsConfig) {
             preset.description = default_preset.description.clone();
             preset.runner_type = default_preset.runner_type.clone();
             preset.recommended_model = default_preset.recommended_model.clone();
+            preset.thinking_effort = default_preset.thinking_effort.clone();
             preset.system_prompt = default_preset.system_prompt.clone();
             preset.selected_skill_ids =
                 normalize_selected_skill_ids(&default_preset.selected_skill_ids);

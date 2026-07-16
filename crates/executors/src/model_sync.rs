@@ -7,7 +7,6 @@ use crate::{
     env::ExecutionEnv,
     executors::{
         BaseCodingAgent, CodingAgent, StandardCodingAgentExecutor,
-        codex::ReasoningEffort as CodexReasoningEffort,
         droid::ReasoningEffortLevel as DroidReasoningEffort,
     },
     profile::{ExecutorConfig, ExecutorConfigs, ProfileError, canonical_variant_key},
@@ -250,9 +249,9 @@ fn with_thinking_or_variant(
             Some(CodingAgent::ClaudeCode(next))
         }
         CodingAgent::Codex(base) => {
-            let effort = parse_codex_reasoning_effort(thinking_effort?)?;
+            let effort = thinking_effort?;
             let mut next = base.clone();
-            next.model_reasoning_effort = Some(effort);
+            next.runtime_model_reasoning_effort = Some(effort.to_string());
             Some(CodingAgent::Codex(next))
         }
         CodingAgent::Droid(base) => {
@@ -296,10 +295,6 @@ fn non_empty(value: &str) -> Option<&str> {
     } else {
         Some(trimmed)
     }
-}
-
-fn parse_codex_reasoning_effort(value: &str) -> Option<CodexReasoningEffort> {
-    serde_json::from_value(serde_json::Value::String(value.trim().to_ascii_lowercase())).ok()
 }
 
 fn parse_droid_reasoning_effort(value: &str) -> Option<DroidReasoningEffort> {
@@ -392,24 +387,24 @@ mod tests {
             panic!("expected Codex");
         };
         assert_eq!(codex.model.as_deref(), Some("gpt-5.2-codex"));
-        assert!(codex.model_reasoning_effort.is_some());
+        assert_eq!(
+            codex.runtime_model_reasoning_effort.as_deref(),
+            Some("xhigh")
+        );
 
-        let codex_max = with_member_execution_overrides(
+        let codex_custom = with_member_execution_overrides(
             &agent_from_json(serde_json::json!({ "CODEX": {} })),
             Some("gpt-5.6-sol"),
-            Some("max"),
+            Some("future-level"),
             None,
         );
-        let CodingAgent::Codex(codex_max) = codex_max else {
+        let CodingAgent::Codex(codex_custom) = codex_custom else {
             panic!("expected Codex");
         };
-        assert_eq!(codex_max.model.as_deref(), Some("gpt-5.6-sol"));
+        assert_eq!(codex_custom.model.as_deref(), Some("gpt-5.6-sol"));
         assert_eq!(
-            codex_max
-                .model_reasoning_effort
-                .as_ref()
-                .map(|effort| effort.as_ref()),
-            Some("max")
+            codex_custom.runtime_model_reasoning_effort.as_deref(),
+            Some("future-level")
         );
 
         let droid = with_member_execution_overrides(

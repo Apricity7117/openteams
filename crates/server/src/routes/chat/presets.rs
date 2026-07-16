@@ -107,6 +107,9 @@ pub struct TeamPresetMemberWrite {
     pub description: Option<String>,
     pub runner_type: Option<String>,
     pub recommended_model: Option<String>,
+    #[serde(default)]
+    #[ts(optional, type = "string | null")]
+    pub thinking_effort: Option<String>,
     pub system_prompt: Option<String>,
     pub default_workspace_path: Option<String>,
     #[serde(default)]
@@ -539,6 +542,7 @@ fn validate_member_presets(
             description: normalize_optional_string(member.description).unwrap_or_default(),
             runner_type: normalize_optional_string(member.runner_type),
             recommended_model: normalize_optional_string(member.recommended_model),
+            thinking_effort: normalize_optional_string(member.thinking_effort),
             system_prompt: member.system_prompt.unwrap_or_default(),
             default_workspace_path: normalize_optional_string(member.default_workspace_path),
             selected_skill_ids: normalize_skill_ids(member.selected_skill_ids),
@@ -743,6 +747,7 @@ fn build_member_presets(
                 ),
                 runner_type: Some(row.runner_type),
                 recommended_model,
+                thinking_effort: None,
                 system_prompt: row.system_prompt,
                 default_workspace_path,
                 selected_skill_ids: normalize_skill_ids(row.allowed_skill_ids.0),
@@ -993,6 +998,7 @@ mod tests {
             description: format!("{id} description"),
             runner_type: Some("codex".to_string()),
             recommended_model: Some("gpt-5.2".to_string()),
+            thinking_effort: Some("high".to_string()),
             system_prompt: format!("You are {id}."),
             default_workspace_path: None,
             selected_skill_ids: vec![],
@@ -1020,6 +1026,7 @@ mod tests {
             description: Some(format!("{id} description")),
             runner_type: Some("codex".to_string()),
             recommended_model: Some("gpt-5.2".to_string()),
+            thinking_effort: Some("high".to_string()),
             system_prompt: Some(format!("You are {id}.")),
             default_workspace_path: None,
             selected_skill_ids: vec!["skill-b".to_string(), "skill-a".to_string()],
@@ -1149,6 +1156,7 @@ mod tests {
         assert_eq!(team.team_protocol, "Coordinate tightly.");
         assert_eq!(team.tier, ChatTeamTemplateTier::Advanced);
         assert_eq!(team.members[0].system_prompt, "You are delivery_backend.");
+        assert_eq!(team.members[0].thinking_effort.as_deref(), Some("high"));
         assert_eq!(team.members[0].tools_enabled, json!({"mode": "test"}));
         assert_eq!(
             team.members[0].selected_skill_ids,
@@ -1712,6 +1720,7 @@ mod tests {
                 description: "Old member".to_string(),
                 runner_type: Some("codex".to_string()),
                 recommended_model: None,
+                thinking_effort: None,
                 system_prompt: "old".to_string(),
                 default_workspace_path: None,
                 selected_skill_ids: vec![],

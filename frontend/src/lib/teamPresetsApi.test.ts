@@ -70,6 +70,7 @@ const writePayload = {
       description: 'Coordinates work',
       runner_type: null,
       recommended_model: null,
+      thinking_effort: null,
       system_prompt: 'Lead the team.',
       default_workspace_path: null,
       selected_skill_ids: ['planning'],

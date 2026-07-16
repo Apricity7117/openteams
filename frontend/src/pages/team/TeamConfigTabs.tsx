@@ -603,7 +603,13 @@ function ConfigTab({
             <DropdownSelect
               value={selectedModelValue}
               options={modelOptions}
-              searchPlaceholder={t("teamPage.search.models")}
+              searchPlaceholder={
+                runnerType === "CODEX"
+                  ? t("teamPage.search.modelsOrInput")
+                  : t("teamPage.search.models")
+              }
+              allowCustomValue={runnerType === "CODEX"}
+              customValueLabel={t("teamPage.options.useInputValue")}
               className="[&>button]:h-10 [&>button]:bg-[var(--surface-3)] [&>button]:font-mono [&>button]:text-[13px]"
               onChange={(value) =>
                 setModelName(value === defaultOptionId ? "" : value)
@@ -618,7 +624,10 @@ function ConfigTab({
             <DropdownSelect
               value={selectedReasoningValue}
               options={reasoningOptions}
-              showSearch={false}
+              showSearch={runnerType === "CODEX"}
+              searchPlaceholder={t("teamPage.search.reasoningOrInput")}
+              allowCustomValue={runnerType === "CODEX"}
+              customValueLabel={t("teamPage.options.useInputValue")}
               className="[&>button]:h-10 [&>button]:bg-[var(--surface-3)] [&>button]:font-mono [&>button]:text-[13px]"
               onChange={(value) => {
                 const nextValue = value === defaultOptionId ? "" : value;

@@ -955,6 +955,10 @@ runner_type: string | null,
  */
 recommended_model: string | null,
 /**
+ * Optional reasoning effort passed to the selected runner
+ */
+thinking_effort: string | null,
+/**
  * System prompt defining the agent's behavior
  */
 system_prompt: string,
@@ -1231,7 +1235,7 @@ export type TeamPresetListResponse = { teams: Array<TeamPresetSummary>, };
 
 export type TeamPresetLocaleQuery = { locale: string | null, };
 
-export type TeamPresetMemberWrite = { id: string, name: string, description: string | null, runner_type: string | null, recommended_model: string | null, system_prompt: string | null, default_workspace_path: string | null, selected_skill_ids: Array<string>, tools_enabled: JsonValue | null, enabled: boolean | null, };
+export type TeamPresetMemberWrite = { id: string, name: string, description: string | null, runner_type: string | null, recommended_model: string | null, thinking_effort?: string | null, system_prompt: string | null, default_workspace_path: string | null, selected_skill_ids: Array<string>, tools_enabled: JsonValue | null, enabled: boolean | null, };
 
 export type CreateTeamPresetRequest = { id: string, name: string, description: string | null, lead_member_id: string | null, tier: ChatTeamTemplateTier | null, workflow_steps: Array<ChatWorkflowStep>, team_protocol: string | null, enabled: boolean | null, members: Array<TeamPresetMemberWrite>, };
 

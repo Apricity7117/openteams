@@ -109,6 +109,13 @@ check(
 );
 check('keeps multi-select panel open after selection in source', source.includes("props.selectionMode === 'multiple'") && source.includes('return;'), source);
 check('supports outside click close in source', source.includes("document.addEventListener('pointerdown'"), source);
+check(
+  'supports opt-in custom single values',
+  source.includes('allowCustomValue') &&
+    source.includes('handleCustomValue') &&
+    source.includes("event.key !== 'Enter'"),
+  source,
+);
 
 if (failures > 0) {
   // eslint-disable-next-line no-console

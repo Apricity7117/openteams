@@ -93,6 +93,9 @@ pub struct ChatMemberPreset {
     /// Optional recommended model identifier for the selected runner
     #[serde(default)]
     pub recommended_model: Option<String>,
+    /// Optional reasoning effort passed to the selected runner
+    #[serde(default)]
+    pub thinking_effort: Option<String>,
     /// System prompt defining the agent's behavior
     pub system_prompt: String,
     /// Optional default workspace path
@@ -690,6 +693,7 @@ mod tests {
             description: "Custom member".to_string(),
             runner_type: None,
             recommended_model: None,
+            thinking_effort: None,
             system_prompt: "Prompt".to_string(),
             default_workspace_path: Some("E:/workspace/custom".to_string()),
             selected_skill_ids: vec![],
@@ -1182,6 +1186,7 @@ mod tests {
                 description: "Custom member".to_string(),
                 runner_type: None,
                 recommended_model: None,
+                thinking_effort: None,
                 system_prompt: "Custom prompt".to_string(),
                 default_workspace_path: None,
                 selected_skill_ids: vec![],
@@ -1213,6 +1218,7 @@ mod tests {
             description: "Stale member".to_string(),
             runner_type: None,
             recommended_model: None,
+            thinking_effort: None,
             system_prompt: "Stale prompt".to_string(),
             default_workspace_path: None,
             selected_skill_ids: vec![],

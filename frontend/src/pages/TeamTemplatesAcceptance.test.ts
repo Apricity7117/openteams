@@ -59,6 +59,7 @@ const builtInTeam: ChatTeamPreset = {
       description: 'Built-in lead',
       runner_type: 'CODEX',
       recommended_model: 'gpt-5.2-codex',
+      thinking_effort: 'high',
       system_prompt: 'Built-in role prompt.',
       default_workspace_path: null,
       selected_skill_ids: ['builtin'],
@@ -122,6 +123,7 @@ const memberWriteToPreset = (member: TeamPresetMemberWrite): ChatMemberPreset =>
   description: member.description ?? '',
   runner_type: member.runner_type ?? null,
   recommended_model: member.recommended_model ?? null,
+  thinking_effort: member.thinking_effort ?? null,
   system_prompt: member.system_prompt ?? '',
   default_workspace_path: member.default_workspace_path ?? null,
   selected_skill_ids: member.selected_skill_ids,
@@ -391,6 +393,7 @@ await runScenario(
           description: 'Coordinates delivery',
           runner_type: 'CODEX',
           recommended_model: 'gpt-5.2-codex',
+          thinking_effort: 'future-level',
           system_prompt: '### Updated Lead\nOwn the final acceptance call.',
           default_workspace_path: null,
           selected_skill_ids: ['planning', 'release'],
@@ -403,6 +406,7 @@ await runScenario(
           description: 'Checks release readiness',
           runner_type: 'CODEX',
           recommended_model: 'gpt-5.2-codex',
+          thinking_effort: 'high',
           system_prompt: 'Review the release checklist.',
           default_workspace_path: null,
           selected_skill_ids: ['review'],
@@ -416,6 +420,12 @@ await runScenario(
 
     assertAcceptance(refreshed.name === updatedPayload.name, 'updated name should persist');
     assertAcceptance(refreshed.members.length === 2, 'edited member set should persist');
+    assertAcceptance(
+      refreshed.members.find((member) => member.id === 'lead')?.thinking_effort ===
+        'future-level',
+      'custom reasoning effort should persist',
+      refreshed.members,
+    );
     assertAcceptance(
       refreshed.members.some((member) => member.id === 'release_reviewer'),
       'added member should persist',
@@ -533,6 +543,11 @@ await runScenario(
     assertAcceptance(
       JSON.stringify(specs[0]?.toolsEnabled) === JSON.stringify(detail.members[0]?.tools_enabled),
       'MCP/tool config should be copied',
+      specs[0],
+    );
+    assertAcceptance(
+      specs[0]?.thinkingEffort === detail.members[0]?.thinking_effort,
+      'custom reasoning effort should be copied',
       specs[0],
     );
     assertAcceptance(
