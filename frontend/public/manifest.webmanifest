@@ -1,0 +1,18 @@
+{
+  "name": "OpenTeams",
+  "short_name": "OpenTeams",
+  "description": "本地优先的多智能体协作工作区",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#010102",
+  "theme_color": "#010102",
+  "icons": [
+    {
+      "src": "/logos/openteams-logo-radius-8.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

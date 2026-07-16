@@ -517,6 +517,8 @@ check(
     !source.includes('openteams-design-mode') &&
     !source.includes('openteams-locale') &&
     source.includes("document.body.setAttribute('data-mode', theme)") &&
+    source.includes("getPropertyValue('--canvas')") &&
+    source.includes("querySelector<HTMLMetaElement>('#theme-color')") &&
     source.includes('themePreference,'),
   source,
 );

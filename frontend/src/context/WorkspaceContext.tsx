@@ -2077,6 +2077,13 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     document.body.setAttribute('data-mode', theme);
+    const canvasColor = getComputedStyle(document.body)
+      .getPropertyValue('--canvas')
+      .trim();
+    document.querySelector<HTMLMetaElement>('#theme-color')?.setAttribute(
+      'content',
+      canvasColor,
+    );
   }, [theme]);
 
   const makeListSetter =
